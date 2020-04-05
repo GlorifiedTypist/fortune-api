@@ -23,7 +23,7 @@ type GetFortuneOK struct {
 	/*
 	  In: Body
 	*/
-	Payload string `json:"body,omitempty"`
+	Payload *GetFortuneOKBody `json:"body,omitempty"`
 }
 
 // NewGetFortuneOK creates GetFortuneOK with default headers values
@@ -33,13 +33,13 @@ func NewGetFortuneOK() *GetFortuneOK {
 }
 
 // WithPayload adds the payload to the get fortune o k response
-func (o *GetFortuneOK) WithPayload(payload string) *GetFortuneOK {
+func (o *GetFortuneOK) WithPayload(payload *GetFortuneOKBody) *GetFortuneOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get fortune o k response
-func (o *GetFortuneOK) SetPayload(payload string) {
+func (o *GetFortuneOK) SetPayload(payload *GetFortuneOKBody) {
 	o.Payload = payload
 }
 
@@ -47,8 +47,10 @@ func (o *GetFortuneOK) SetPayload(payload string) {
 func (o *GetFortuneOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(200)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }

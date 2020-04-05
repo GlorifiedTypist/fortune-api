@@ -9,3 +9,7 @@ server:
 
 build:
 	go build -o bin/fortune-api internal/main.go internal/warmup.go
+
+run:
+	go build -o bin/fortune-api internal/main.go internal/warmup.go
+	bin/fortune-api

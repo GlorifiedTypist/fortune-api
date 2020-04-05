@@ -1,12 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gomodule/redigo/redis"
 	"log"
 	"math/rand"
-	"strconv"
 	"time"
 
 	"github.com/go-openapi/loads"
@@ -14,6 +14,10 @@ import (
 	"pkg/swagger/pkg/swagger/server/restapi"
 	"pkg/swagger/pkg/swagger/server/restapi/operations"
 )
+
+type FortuneJSON struct {
+	fortune string `json:"fortune"`
+}
 
 func main() {
 
@@ -61,21 +65,24 @@ func Fortune(params operations.GetFortuneParams) middleware.Responder {
 
 	defer conn.Close()
 
-	dbsize, err := redis.String(conn.Do("DBSIZE"))
-	log.Println("DBSIZE: %d", dbsize)
+	dbsize, err := redis.Int(conn.Do("DBSIZE"))
+	log.Printf("DBSIZE: %d", dbsize)
 
 	rand.Seed(time.Now().UnixNano())
+	key := fmt.Sprintf("fortune:%d", rand.Intn(dbsize))
 
-	i, err := strconv.Atoi(dbsize)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	key := fmt.Sprintf("fortune:%d", rand.Intn(i))
 	fortune, err := redis.String(conn.Do("HGET", key, "fortune"))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	return operations.NewGetFortuneOK().WithPayload(fortune)
+	f := operations.GetFortuneOKBody{fortune}
+	message, err := json.Marshal(f)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(string(message))
+
+	return operations.NewGetFortuneOK().WithPayload(&f)
 }
