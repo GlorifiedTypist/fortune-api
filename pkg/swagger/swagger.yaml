@@ -6,18 +6,6 @@ info:
 schemes:
   - http
 paths:
-  /healthz:
-    get:
-      summary: Returns health check status
-      produces:
-        - text/plain
-      responses:
-        200:
-          description: OK
-          schema:
-            type: string
-            enum:
-              - OK
   /fortune:
     get:
       summary: Returns a random fortune

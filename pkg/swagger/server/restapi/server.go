@@ -25,7 +25,7 @@ import (
 	flags "github.com/jessevdk/go-flags"
 	"golang.org/x/net/netutil"
 
-	"pkg/swagger/pkg/swagger/server/restapi/operations"
+	"fortune-api/pkg/swagger/server/restapi/operations"
 )
 
 const (

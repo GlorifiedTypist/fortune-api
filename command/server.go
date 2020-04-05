@@ -1,4 +1,4 @@
-package main
+package command
 
 import (
 	"encoding/json"
@@ -7,20 +7,50 @@ import (
 	"github.com/gomodule/redigo/redis"
 	"log"
 	"math/rand"
+	"net/http"
 	"time"
 
 	"github.com/go-openapi/loads"
+	"github.com/spf13/cobra"
+	"github.com/heptiolabs/healthcheck"
 
-	"pkg/swagger/pkg/swagger/server/restapi"
-	"pkg/swagger/pkg/swagger/server/restapi/operations"
+	"fortune-api/pkg/swagger/server/restapi"
+	"fortune-api/pkg/swagger/server/restapi/operations"
 )
 
+func init() {
+	rootCmd.AddCommand(serverCmd)
+	serverCmd.AddCommand(serverRunCmd)
+}
+
+var serverCmd = &cobra.Command{
+	Use:   "server",
+	Short: "API server commands.",
+}
+
+var serverRunCmd = &cobra.Command{
+	Use:   "run",
+	Short: "Starts the API server.",
+	RunE:  runServer,
+}
 type FortuneJSON struct {
 	fortune string `json:"fortune"`
 }
 
-func main() {
+func runServer(cmd *cobra.Command, args []string) error {
 
+	// Init healthchecks
+	health := healthcheck.NewHandler()
+	health.AddLivenessCheck("goroutine-threshold", healthcheck.GoroutineCountCheck(0))
+
+	adminMux := http.NewServeMux()
+
+	go http.ListenAndServe("0.0.0.0:9402", adminMux)
+
+	adminMux.HandleFunc("/live", health.LiveEndpoint)
+	adminMux.HandleFunc("/ready", health.ReadyEndpoint)
+
+	// Init application
 	swaggerSpec, err := loads.Analyzed(restapi.SwaggerJSON, "")
 	if err != nil {
 		log.Fatalln(err)
@@ -35,24 +65,16 @@ func main() {
 		}
 	}()
 
-	log.Println("Warming cache")
-	warmCache()
-	log.Println("Warming cache, done")
-
 	server.Port = 8080
 
-	api.GetHealthzHandler = operations.GetHealthzHandlerFunc(Health)
 	api.GetFortuneHandler = operations.GetFortuneHandlerFunc(Fortune)
 
 	if err := server.Serve(); err != nil {
 		log.Fatalln(err)
 	}
 
-}
+	return err
 
-//Health route returns OK
-func Health(params operations.GetHealthzParams) middleware.Responder {
-	return operations.NewGetHealthzOK().WithPayload("OK")
 }
 
 //Fortune route returns fortune

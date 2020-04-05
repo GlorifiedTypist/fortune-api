@@ -40,13 +40,9 @@ func NewFortuneAPI(spec *loads.Document) *FortuneAPI {
 		JSONConsumer: runtime.JSONConsumer(),
 
 		JSONProducer: runtime.JSONProducer(),
-		TxtProducer:  runtime.TextProducer(),
 
 		GetFortuneHandler: GetFortuneHandlerFunc(func(params GetFortuneParams) middleware.Responder {
 			return middleware.NotImplemented("operation GetFortune has not yet been implemented")
-		}),
-		GetHealthzHandler: GetHealthzHandlerFunc(func(params GetHealthzParams) middleware.Responder {
-			return middleware.NotImplemented("operation GetHealthz has not yet been implemented")
 		}),
 	}
 }
@@ -80,14 +76,9 @@ type FortuneAPI struct {
 	// JSONProducer registers a producer for the following mime types:
 	//   - application/json
 	JSONProducer runtime.Producer
-	// TxtProducer registers a producer for the following mime types:
-	//   - text/plain
-	TxtProducer runtime.Producer
 
 	// GetFortuneHandler sets the operation handler for the get fortune operation
 	GetFortuneHandler GetFortuneHandler
-	// GetHealthzHandler sets the operation handler for the get healthz operation
-	GetHealthzHandler GetHealthzHandler
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
 	ServeError func(http.ResponseWriter, *http.Request, error)
@@ -153,15 +144,9 @@ func (o *FortuneAPI) Validate() error {
 	if o.JSONProducer == nil {
 		unregistered = append(unregistered, "JSONProducer")
 	}
-	if o.TxtProducer == nil {
-		unregistered = append(unregistered, "TxtProducer")
-	}
 
 	if o.GetFortuneHandler == nil {
 		unregistered = append(unregistered, "GetFortuneHandler")
-	}
-	if o.GetHealthzHandler == nil {
-		unregistered = append(unregistered, "GetHealthzHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -211,8 +196,6 @@ func (o *FortuneAPI) ProducersFor(mediaTypes []string) map[string]runtime.Produc
 		switch mt {
 		case "application/json":
 			result["application/json"] = o.JSONProducer
-		case "text/plain":
-			result["text/plain"] = o.TxtProducer
 		}
 
 		if p, ok := o.customProducers[mt]; ok {
@@ -257,10 +240,6 @@ func (o *FortuneAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/fortune"] = NewGetFortune(o.context, o.GetFortuneHandler)
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/healthz"] = NewGetHealthz(o.context, o.GetHealthzHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP
