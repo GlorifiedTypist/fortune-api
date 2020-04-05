@@ -49,25 +49,6 @@ func init() {
           }
         }
       }
-    },
-    "/healthz": {
-      "get": {
-        "produces": [
-          "text/plain"
-        ],
-        "summary": "Returns health check status",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "type": "string",
-              "enum": [
-                "OK"
-              ]
-            }
-          }
-        }
-      }
     }
   }
 }`))
@@ -99,25 +80,6 @@ func init() {
                   "type": "string"
                 }
               }
-            }
-          }
-        }
-      }
-    },
-    "/healthz": {
-      "get": {
-        "produces": [
-          "text/plain"
-        ],
-        "summary": "Returns health check status",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "type": "string",
-              "enum": [
-                "OK"
-              ]
             }
           }
         }

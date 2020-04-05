@@ -10,7 +10,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 
-	"pkg/swagger/pkg/swagger/server/restapi/operations"
+	"fortune-api/pkg/swagger/server/restapi/operations"
 )
 
 //go:generate swagger generate server --target ../../server --name Fortune --spec ../../swagger.yaml --exclude-main
@@ -32,16 +32,10 @@ func configureAPI(api *operations.FortuneAPI) http.Handler {
 	api.JSONConsumer = runtime.JSONConsumer()
 
 	api.JSONProducer = runtime.JSONProducer()
-	api.TxtProducer = runtime.TextProducer()
 
 	if api.GetFortuneHandler == nil {
 		api.GetFortuneHandler = operations.GetFortuneHandlerFunc(func(params operations.GetFortuneParams) middleware.Responder {
 			return middleware.NotImplemented("operation operations.GetFortune has not yet been implemented")
-		})
-	}
-	if api.GetHealthzHandler == nil {
-		api.GetHealthzHandler = operations.GetHealthzHandlerFunc(func(params operations.GetHealthzParams) middleware.Responder {
-			return middleware.NotImplemented("operation operations.GetHealthz has not yet been implemented")
 		})
 	}
 
