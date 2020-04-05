@@ -38,7 +38,13 @@ func init() {
           "200": {
             "description": "OK",
             "schema": {
-              "type": "string"
+              "type": "object",
+              "properties": {
+                "fortune": {
+                  "description": "Fortune message.",
+                  "type": "string"
+                }
+              }
             }
           }
         }
@@ -86,7 +92,13 @@ func init() {
           "200": {
             "description": "OK",
             "schema": {
-              "type": "string"
+              "type": "object",
+              "properties": {
+                "fortune": {
+                  "description": "Fortune message.",
+                  "type": "string"
+                }
+              }
             }
           }
         }
